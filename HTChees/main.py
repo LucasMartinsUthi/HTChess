@@ -11,34 +11,28 @@ image = pg.image
 transform = pg.transform
 
 Jogo = classJogo()
-Jogador = classJogador()
+jogador = classJogador()
 
-
-# Jogo.drawBoard()
-
-# teste peao
-# peao = image.load('img/b_peao.png')
-# peao2 = transform.smoothscale(peao, (160,220))
-# peao_r = peao2.get_rect()
 click = True
-for dict in Jogador.deck:
-	print(dict['name'])
+dragDrop = True
 
 while True:
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			sys.exit()
 
-	# Jogo.canvas.blit(peao2, peao_r)
-	carta = draw.rect(Jogo.canvas, [153, 153, 153], ([0,0],[200,200]))
-	if carta.collidepoint(pg.mouse.get_pos()):
-		carta = draw.rect(Jogo.canvas, [153, 0, 0], ([0,0],[200,200]))
-
-	if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and click == True and carta.collidepoint(pg.mouse.get_pos()):
+	# Click Button
+	if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and click == True and jogador.button.collidepoint(pg.mouse.get_pos()):
 		click = False
-		Jogador.addMao()
+		jogador.addMao()
 	elif event.type != pygame.MOUSEBUTTONDOWN or event.button != 1 or click != False:
 		click = True
+
+	# Drag Drop carta
+	for carta in jogador.mao:
+		if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and dragDrop == True and carta['rect'].collidepoint(pg.mouse.get_pos()):
+			dragDrop = False
+			print('drag')
 
 	pg.display.update()
 	pg.time.Clock().tick(60)

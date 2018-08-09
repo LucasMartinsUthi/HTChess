@@ -1,8 +1,10 @@
+import pygame
 from random import randint
 
 class classJogador:
 
 	def __init__(self):
+		self.canvas = pygame.display.set_mode([1280, 720])
 		self.deck = [{'name': "queen",  'mana': 7, 'atack': 4, 'life': 6},
                     {'name': "knight", 'mana': 4, 'atack': 4, 'life': 3},
                     {'name': "knight", 'mana': 4, 'atack': 4, 'life': 3},
@@ -29,8 +31,15 @@ class classJogador:
 		self.mana = 1
 		self.mao = []
 		self.cartaSelecionada = []
+		self.button = None
+		self.debug = 10
+		self.initDraw()
 		self.geraDeck()
-		pass
+
+	def initDraw(self):
+		pygame.draw.rect(self.canvas, [130, 89, 9], ([0,500], [1280, 220]))
+		self.button = pygame.draw.rect(self.canvas, [130, 130, 10], ([0,0], [100, 50]))
+
 
 	def geraDeck(self):
 		for i in reversed(range(0, len(self.deck))):
@@ -47,8 +56,11 @@ class classJogador:
 		pass
 
 	def addMao(self):
-		self.mao.append(self.deck[0])
-		self.deck.pop(0)
+		if len(self.mao) == 7:
+			print('Mão Cheia')
+		else:
+			self.mao.append({'carta': self.deck[0], 'rect': self.drawMao()})
+			self.deck.pop(0)
 
 	def addCartaMesa(self):
 		chaves = [key for key, val in self.mesa.items() if val['ocupado']]
@@ -83,6 +95,19 @@ class classJogador:
 
 		return True
 
-	def update(self):
+	def drawMao(self):
+		print(len(self.mao))
+		pos = [40, 520]
+		for carta in self.mao:
+			pos[0] += 140
+
+		return pygame.draw.rect(self.canvas, [0, 50, 255], (pos,[100,180]))
+
+	def drawTabuleiro(self):
 		pass
+
+	def drawAdversario(self):
+		pass
+
+
 		
