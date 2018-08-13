@@ -15,7 +15,7 @@ jogador = classJogador()
 
 click = True
 dragDrop = True
-addCartaMesa = True
+addCartaMesa = False
 
 while True:
 	for event in pygame.event.get():
@@ -38,11 +38,13 @@ while True:
 			addCartaMesa = True
 		i += 1
 	if (event.type != pygame.MOUSEBUTTONDOWN or event.button != 1 or dragDrop != False) and event.type != pygame.MOUSEMOTION:
-		j = -3 		
-		for casa in jogador.mesa:
+		j = -3 
+		chaves = list(jogador.mesa.keys())
+		chaves.sort()	
+		for casa in chaves:
 			if jogador.mesa[casa]['rect'].collidepoint(pg.mouse.get_pos()):
 				if addCartaMesa:
-					jogador.addCartaMesa()	
+					jogador.addCartaMesa(j)	
 					addCartaMesa = False
 			j += 1
 		jogador.cartaSelecionada = None
