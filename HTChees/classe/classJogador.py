@@ -21,19 +21,20 @@ class classJogador:
                     {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'cor': [255, 0, 255]},
                     {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'cor': [255, 0, 255]},
                     {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'cor': [255, 0, 255]}]
-		self.mesa = {-3: {'ocupado': False, 'pos': [40, 300], 'rect': pygame.draw.rect(self.canvas, [153, 153, 153], ([40, 300],[100,180]))},
-                   -2: {'ocupado': False, 'pos': [180, 300],'rect': pygame.draw.rect(self.canvas, [0, 0, 0], ([180, 300],[100,180]))},
-                   -1: {'ocupado': False, 'pos': [320, 300],'rect': pygame.draw.rect(self.canvas, [0, 0, 0], ([320, 300],[100,180]))},
-                    0: {'ocupado': False, 'pos': [460, 300],'rect': pygame.draw.rect(self.canvas, [0, 0, 0], ([460, 300],[100,180]))},
-                    1: {'ocupado': False, 'pos': [600, 300],'rect': pygame.draw.rect(self.canvas, [0, 0, 0], ([600, 300],[100,180]))},
-                    2: {'ocupado': False, 'pos': [740, 300],'rect': pygame.draw.rect(self.canvas, [0, 0, 0], ([740, 300],[100,180]))},
-                    3: {'ocupado': False, 'pos': [880, 300],'rect': pygame.draw.rect(self.canvas, [0, 0, 0], ([880, 300],[100,180]))}}
+		self.mesa = {-3: {'ocupado': False, 'pos': [40, 300], 'rect': None, 'colide': pygame.draw.rect(self.canvas, [0, 0, 0], ([20, 300],[140,180]))},
+                   -2: {'ocupado': False, 'pos': [180, 300],'rect': None, 'colide': pygame.draw.rect(self.canvas, [0, 0, 0], ([160, 300],[140,180]))},
+                   -1: {'ocupado': False, 'pos': [320, 300],'rect': None, 'colide': pygame.draw.rect(self.canvas, [0, 0, 0], ([300, 300],[140,180]))},
+                    0: {'ocupado': False, 'pos': [460, 300],'rect': None, 'colide': pygame.draw.rect(self.canvas, [0, 0, 0], ([440, 300],[140,180]))},
+                    1: {'ocupado': False, 'pos': [600, 300],'rect': None, 'colide': pygame.draw.rect(self.canvas, [0, 0, 0], ([580, 300],[140,180]))},
+                    2: {'ocupado': False, 'pos': [740, 300],'rect': None, 'colide': pygame.draw.rect(self.canvas, [0, 0, 0], ([720, 300],[140,180]))},
+                    3: {'ocupado': False, 'pos': [880, 300],'rect': None, 'colide': pygame.draw.rect(self.canvas, [0, 0, 0], ([860, 300],[140,180]))}}
 		self.vida = 10
 		self.mana = 1
 		self.mao = []
 		self.cartaSelecionada = None
 		self.button = None
 		self.debug = 10
+		self.bkpMesa  = copy.deepcopy(self.mesa)
 		self.initDraw()
 		self.geraDeck()
 
@@ -62,20 +63,13 @@ class classJogador:
 			self.deck.pop(0)
 			self.drawMao()
 
-	def addCartaMesa(self, pos, preview = False):
+	def addCartaMesa(self, pos):
 		ocupado = copy.deepcopy(self.mao[self.cartaSelecionada]['carta'])
-		if preview:
-			ocupado = True
-			bkpMesa = copy.deepcopy(self.mesa)
-
 		chaves = [key for key, val in self.mesa.items() if val['ocupado']]
 		if not chaves:
-			if preview:
-				return True
 			self.mesa[0]['ocupado'] = ocupado
 			self.mesa[0]['rect'] = pygame.draw.rect(self.canvas, [0, 0, 0], (self.mesa[0]['pos'] ,[100,180]))
-			if not preview:
-				self.mao.pop(self.cartaSelecionada)
+			self.mao.pop(self.cartaSelecionada)
 			return True
 
 		menor = min(chaves)
@@ -121,11 +115,65 @@ class classJogador:
 
 			self.mesa[pos]['ocupado'] = ocupado
 			self.mesa[pos]['rect'] = pygame.draw.rect(self.canvas, [0, 0, 0], (self.mesa[pos]['pos'] ,[100,180]))
+		
+		self.mao.pop(self.cartaSelecionada)
+		return True
 
-		if preview:
-			self.drawMesa(bkpMesa)
+	def previewCartaMesa(self, pos):
+		ocupado = True
+		self.bkpMesa = copy.deepcopy(self.mesa)
+		chaves = [key for key, val in self.mesa.items() if val['ocupado']]
+		if not chaves:
+			self.mesa[0]['ocupado'] = ocupado
+			self.mesa[0]['rect'] = pygame.draw.rect(self.canvas, [0, 0, 0], (self.mesa[0]['pos'] ,[100,180]))
+			self.drawMesa(True)
+			return True
+
+		menor = min(chaves)
+		maior = max(chaves)
+
+		if abs(menor) == 3:
+			print('cheio')
+			return False
 		else:
-			self.mao.pop(self.cartaSelecionada)
+			if abs(menor) == abs(maior):
+				if pos <= menor:
+					i = maior
+					while i >= menor:
+						self.mesa[i+1]['ocupado'] = self.mesa[i]['ocupado']
+						self.mesa[i+1]['rect'] = pygame.draw.rect(self.canvas, [0, 0, 0], (self.mesa[i+1]['pos'] ,[100,180]))
+						i -= 1
+					pos = menor
+				elif menor < pos <= maior:
+					i = maior
+					while i >= pos:
+						self.mesa[i+1]['ocupado'] = self.mesa[i]['ocupado']
+						self.mesa[i+1]['rect'] = pygame.draw.rect(self.canvas, [0, 0, 0], (self.mesa[i+1]['pos'] ,[100,180]))
+						i -= 1
+				elif pos > maior:
+					pos = maior + 1
+			else:
+				# pos1 -
+				if pos >= maior:
+					i = menor
+					while i <= maior:
+						self.mesa[i-1]['ocupado'] = self.mesa[i]['ocupado']
+						self.mesa[i-1]['rect'] = pygame.draw.rect(self.canvas, [0, 0, 0], (self.mesa[i-1]['pos'] ,[100,180]))
+						i += 1
+					pos = maior
+				elif menor <= pos < maior:
+					i = menor
+					while i <= pos:
+						self.mesa[i-1]['ocupado'] = self.mesa[i]['ocupado']
+						self.mesa[i-1]['rect'] = pygame.draw.rect(self.canvas, [0, 0, 0], (self.mesa[i+1]['pos'] ,[100,180]))
+						i += 1
+				elif pos < menor:
+					pos = menor - 1
+
+			self.mesa[pos]['ocupado'] = ocupado
+			self.mesa[pos]['rect'] = pygame.draw.rect(self.canvas, [0, 0, 0], (self.mesa[pos]['pos'] ,[100,180]))
+		
+		self.drawMesa(True)
 		return True
 
 	def drawMao(self):
@@ -142,7 +190,7 @@ class classJogador:
 
 		return True
 
-	def drawMesa(self, bkp = False):
+	def drawMesa(self, preview = False):
 		lenChaves = len([key for key, val in self.mesa.items() if val['ocupado']])
 		ajuste = 0
 		if lenChaves % 2 == 0 and lenChaves != 0:
@@ -158,9 +206,9 @@ class classJogador:
 			elif self.mesa[casa]['ocupado'] == True:
 				self.mesa[casa]['rect']	= pygame.draw.rect(self.canvas, [155, 155, 155], (pos ,[100,180]), 1)
 			else:
-				pass
-		if bkp != False:
-			self.mesa = bkp
+				self.mesa[casa]['rect']	= pygame.draw.rect(self.canvas, [0, 0, 0], (pos ,[120,180]), 1)
+		if preview:
+			self.mesa = copy.deepcopy(self.bkpMesa)
 		return True
 
 	def drawDrag(self):
@@ -172,12 +220,3 @@ class classJogador:
 			i += 1
 
 		return True
-
-	def drawTabuleiro(self):
-		pass
-
-	def drawAdversario(self):
-		pass
-
-
-		
