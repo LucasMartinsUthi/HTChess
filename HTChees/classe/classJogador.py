@@ -1,5 +1,6 @@
 import pygame
 from random import randint
+import copy
 
 class classJogador:
 
@@ -50,9 +51,6 @@ class classJogador:
 			self.deck[randI] = self.deck[i]
 			self.deck[i] = randItem
 
-	def selectCarta(self):
-		pass
-
 	def addMana(self):
 		pass
 
@@ -64,12 +62,20 @@ class classJogador:
 			self.deck.pop(0)
 			self.drawMao()
 
-	def addCartaMesa(self, pos):
+	def addCartaMesa(self, pos, preview = False):
+		ocupado = copy.deepcopy(self.mao[self.cartaSelecionada]['carta'])
+		if preview:
+			ocupado = True
+			bkpMesa = copy.deepcopy(self.mesa)
+
 		chaves = [key for key, val in self.mesa.items() if val['ocupado']]
 		if not chaves:
-			self.mesa[0]['ocupado'] = self.mao[self.cartaSelecionada]['carta']
-			self.mesa[0]['rect'] = pygame.draw.rect(self.canvas, [0, 0, 255], (self.mesa[0]['pos'] ,[100,180]))
-			self.mao.pop(self.cartaSelecionada)
+			if preview:
+				return True
+			self.mesa[0]['ocupado'] = ocupado
+			self.mesa[0]['rect'] = pygame.draw.rect(self.canvas, [0, 0, 0], (self.mesa[0]['pos'] ,[100,180]))
+			if not preview:
+				self.mao.pop(self.cartaSelecionada)
 			return True
 
 		menor = min(chaves)
@@ -79,7 +85,6 @@ class classJogador:
 			print('cheio')
 			return False
 		else:
-			print(menor, maior)
 			if abs(menor) == abs(maior):
 				if pos <= menor:
 					i = maior
@@ -98,7 +103,7 @@ class classJogador:
 					pos = maior + 1
 			else:
 				# pos1 -
-				if pos > maior:
+				if pos >= maior:
 					i = menor
 					while i <= maior:
 						self.mesa[i-1]['ocupado'] = self.mesa[i]['ocupado']
@@ -114,10 +119,13 @@ class classJogador:
 				elif pos < menor:
 					pos = menor - 1
 
-			self.mesa[pos]['ocupado'] = self.mao[self.cartaSelecionada]['carta']
+			self.mesa[pos]['ocupado'] = ocupado
 			self.mesa[pos]['rect'] = pygame.draw.rect(self.canvas, [0, 0, 0], (self.mesa[pos]['pos'] ,[100,180]))
 
-		self.mao.pop(self.cartaSelecionada)
+		if preview:
+			self.drawMesa(bkpMesa)
+		else:
+			self.mao.pop(self.cartaSelecionada)
 		return True
 
 	def drawMao(self):
@@ -134,14 +142,25 @@ class classJogador:
 
 		return True
 
-	def drawMesa(self):
+	def drawMesa(self, bkp = False):
+		lenChaves = len([key for key, val in self.mesa.items() if val['ocupado']])
+		ajuste = 0
+		if lenChaves % 2 == 0 and lenChaves != 0:
+			ajuste  = -70
 		chaves = list(self.mesa.keys())
 		chaves.sort()
+
 		for casa in chaves:
-			if self.mesa[casa]['ocupado'] != False:
-				self.mesa[casa]['rect']	= pygame.draw.rect(self.canvas, self.mesa[casa]['ocupado']['cor'], (self.mesa[casa]['pos'] ,[100,180]))
+			pos = list(self.mesa[casa]['pos'])
+			pos[0] += ajuste
+			if self.mesa[casa]['ocupado'] != False and self.mesa[casa]['ocupado'] != True:
+				self.mesa[casa]['rect']	= pygame.draw.rect(self.canvas, self.mesa[casa]['ocupado']['cor'], (pos ,[100,180]))
+			elif self.mesa[casa]['ocupado'] == True:
+				self.mesa[casa]['rect']	= pygame.draw.rect(self.canvas, [155, 155, 155], (pos ,[100,180]), 1)
 			else:
-				pygame.draw.rect(self.canvas, [153, 153, 153], self.mesa[casa]['rect'], 1)
+				pass
+		if bkp != False:
+			self.mesa = bkp
 		return True
 
 	def drawDrag(self):
