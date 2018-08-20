@@ -1,7 +1,13 @@
 import pygame
 import sys
+import copy
+import socket
+import json
+sys.path.append('..')
 from classe.classJogador import classJogador
 from classe.classJogo import classJogo
+from signal import signal, SIGPIPE, SIG_DFL
+signal(SIGPIPE, SIG_DFL)
 
 pg = pygame
 pg.init()
@@ -10,13 +16,19 @@ draw = pg.draw
 image = pg.image
 transform = pg.transform
 
-jogo = classJogo()
+Jogo = classJogo()
 jogador = classJogador()
 
 click = True
 dragDrop = True
 addCartaMesa = False
 preview = False
+
+def con():
+	clientsocket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+	clientsocket.connect(('10.228.254.181', 4000))
+	arr = json.dumps('click', ensure_ascii=False).encode('utf8')
+	clientsocket.send(arr)
 
 while True:
 	for event in pygame.event.get():
@@ -29,8 +41,8 @@ while True:
 	# Click Button
 	if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and click == True and jogador.button.collidepoint(pg.mouse.get_pos()):
 		click = False
-		jogador.mao = jogo.addMao()
-		jogador.drawMao()
+		jogador.addMao()	
+		conection()
 	elif event.type != pygame.MOUSEBUTTONDOWN or event.button != 1 or click != False:
 		click = True
 

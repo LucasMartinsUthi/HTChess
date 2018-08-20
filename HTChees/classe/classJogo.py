@@ -1,35 +1,43 @@
 import pygame
+from random import randint
+import copy
 
 class classJogo(object):
 	
 	def __init__(self):
-		self.canvas = pygame.display.set_mode([1280, 720])
+		self.deck = [{'name': "queen",  'mana': 7, 'atack': 4, 'life': 6, 'cor': [0, 0, 255]},
+                    {'name': "knight", 'mana': 4, 'atack': 4, 'life': 3, 'cor': [0, 255, 0]},
+                    {'name': "knight", 'mana': 4, 'atack': 4, 'life': 3, 'cor': [0, 255, 0]},
+                    {'name': "bishop", 'mana': 3, 'atack': 0, 'life': 6, 'cor': [255, 0, 0]},
+                    {'name': "bishop", 'mana': 3, 'atack': 0, 'life': 6, 'cor': [255, 0, 0]},
+                    {'name': "rook", 'mana': 3, 'atack': 2, 'life': 6, 'cor': [255, 255, 0]},
+                    {'name': "rook", 'mana': 3, 'atack': 2, 'life': 6, 'cor': [255, 255, 0]},
+                    {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'cor': [255, 0, 255]},
+                    {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'cor': [255, 0, 255]},
+                    {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'cor': [255, 0, 255]},
+                    {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'cor': [255, 0, 255]},
+                    {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'cor': [255, 0, 255]},
+                    {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'cor': [255, 0, 255]},
+                    {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'cor': [255, 0, 255]},
+                    {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'cor': [255, 0, 255]}]
+		self.vida = 10
+		self.mana = 1
+		self.mao = []
+		self.geraDeck()
 
-	def fimTurno(self):
-		pass
+	def geraDeck(self):
+		for i in reversed(range(0, len(self.deck))):
+			randI = randint(0,14)
+			randItem = self.deck[randI]
+
+			self.deck[randI] = self.deck[i]
+			self.deck[i] = randItem
 		
-	def ataque(self):
-		# atkUnico
-		# atkDuplo
-		# espCura
-		# atkJogador
-		pass
-
-	def addMana(self):
-		pass
-
 	def addMao(self):
-		pass
-
-	def drawBoard(self):
-		self.canvas.fill([173, 119, 12])
-		m_top = pygame.draw.rect(self.canvas, [130, 89, 9], ([0,0],[1280,180]))
-		line_top = pygame.draw.line(self.canvas, [153, 153, 153], [180,0], [180,180])
-		linva_vida_top = pygame.draw.line(self.canvas, [153, 153, 153], [0, 90], [180,90])
-
-		line_mid = pygame.draw.line(self.canvas, [153, 153, 153], [0,360], [1280,360])
-		
-		m_bot = pygame.draw.rect(self.canvas, [130, 89, 9], ([0,540],[1280,720]))
-		line_bot = pygame.draw.line(self.canvas, [153, 153, 153], [180,540], [180,720])
-		linva_vida_top = pygame.draw.line(self.canvas, [153, 153, 153], [0,630], [180,630])
+		if len(self.mao) == 7:
+			print('Mão Cheia')
+		else:
+			self.mao.append({'carta': self.deck[0]})
+			self.deck.pop(0)
+		return self.mao
 

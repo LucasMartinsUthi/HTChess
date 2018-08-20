@@ -37,6 +37,22 @@ class classJogo(object):
             self.deck[randI] = self.deck[i]
             self.deck[i] = randItem
 
+    def geraDeck(self):
+        for i in reversed(range(0, len(self.deck))):
+            randI = randint(0,14)
+            randItem = self.deck[randI]
+
+            self.deck[randI] = self.deck[i]
+            self.deck[i] = randItem
+        
+    def addMao(self):
+        if len(self.mao) == 7:
+            print('Mão Cheia')
+        else:
+            self.mao.append({'carta': self.deck[0]})
+            self.deck.pop(0)
+            self.drawMao()
+
     def inserirPosicao(self, pos1, pos2):
         chaves = [key for key, val in self.tab.items() if val['ocupado']]
 
