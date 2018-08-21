@@ -1,7 +1,6 @@
 import pygame
 import sys
 from classe.classJogador import classJogador
-from classe.classJogo import classJogo
 
 pg = pygame
 pg.init()
@@ -10,8 +9,8 @@ draw = pg.draw
 image = pg.image
 transform = pg.transform
 
-jogo = classJogo()
 jogador = classJogador()
+jogador.id = input("Qual Jogador vc é: ")
 
 click = True
 dragDrop = True
@@ -29,8 +28,9 @@ while True:
 	# Click Button
 	if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and click == True and jogador.button.collidepoint(pg.mouse.get_pos()):
 		click = False
-		jogador.mao = jogo.addMao()
+		jogador.addMao()
 		jogador.drawMao()
+		jogador.socket()
 	elif event.type != pygame.MOUSEBUTTONDOWN or event.button != 1 or click != False:
 		click = True
 

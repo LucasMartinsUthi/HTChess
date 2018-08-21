@@ -11,6 +11,22 @@ class classJogador:
 
 	def __init__(self):
 		self.canvas = pygame.display.set_mode([1000, 720])
+		self.id = None
+		self.deck = [{'name': "queen",  'mana': 7, 'atack': 4, 'life': 6, 'cor': [0, 0, 255]},
+                    {'name': "knight", 'mana': 4, 'atack': 4, 'life': 3, 'cor': [0, 255, 0]},
+                    {'name': "knight", 'mana': 4, 'atack': 4, 'life': 3, 'cor': [0, 255, 0]},
+                    {'name': "bishop", 'mana': 3, 'atack': 0, 'life': 6, 'cor': [255, 0, 0]},
+                    {'name': "bishop", 'mana': 3, 'atack': 0, 'life': 6, 'cor': [255, 0, 0]},
+                    {'name': "rook", 'mana': 3, 'atack': 2, 'life': 6, 'cor': [255, 255, 0]},
+                    {'name': "rook", 'mana': 3, 'atack': 2, 'life': 6, 'cor': [255, 255, 0]},
+                    {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'cor': [255, 0, 255]},
+                    {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'cor': [255, 0, 255]},
+                    {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'cor': [255, 0, 255]},
+                    {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'cor': [255, 0, 255]},
+                    {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'cor': [255, 0, 255]},
+                    {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'cor': [255, 0, 255]},
+                    {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'cor': [255, 0, 255]},
+                    {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'cor': [255, 0, 255]}]
 		self.mesa = {-3: {'ocupado': False, 'pos': [40, 300], 'rect': None, 'colide': pygame.draw.rect(self.canvas, [0, 0, 0], ([20, 300],[140,180]))},
                    -2: {'ocupado': False, 'pos': [180, 300],'rect': None, 'colide': pygame.draw.rect(self.canvas, [0, 0, 0], ([160, 300],[140,180]))},
                    -1: {'ocupado': False, 'pos': [320, 300],'rect': None, 'colide': pygame.draw.rect(self.canvas, [0, 0, 0], ([300, 300],[140,180]))},
@@ -25,20 +41,40 @@ class classJogador:
 		self.button = None
 		self.debug = 10
 		self.bkpMesa  = copy.deepcopy(self.mesa)
-		self.con = True
+		self.inimigo = None
 		self.initDraw()
 
-	def conection(self):
-		clientsocket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-		clientsocket.connect(('10.228.254.181', 4000))
-		arr = json.dumps('click', ensure_ascii=False).encode('utf8')
-		clientsocket.send(arr)
+	def socket(self):
+		con = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+		con.connect(('10.228.254.181', 7016))
+		arr = json.dumps({'id': self.id, 'lenMao' : len(self.mao), 'mesa' : len(self.mesa), 'lenDeck': len(self.deck)}, ensure_ascii=False).encode('utf8')
+		con.send(arr)
+		resposta = con.recv(1024).decode()
+		resposta = json.loads(resposta)
+		self.inimigo = resposta
+		print(self.inimigo)
+
+	def geraDeck(self):
+		for i in reversed(range(0, len(self.deck))):
+			randI = randint(0,14)
+			randItem = self.deck[randI]
+
+			self.deck[randI] = self.deck[i]
+			self.deck[i] = randItem
+		
+	def addMao(self):
+		if len(self.mao) == 7:
+			print('Mão Cheia')
+		else:
+			self.mao.append({'carta': self.deck[0]})
+			self.deck.pop(0)
+		return self.mao
 
 	def initDraw(self):
 		self.canvas.fill([0, 0, 0])
 		pygame.draw.rect(self.canvas, [130, 89, 9], ([0,500], [1280, 220]))
 		self.button = pygame.draw.rect(self.canvas, [130, 130, 10], ([0,0], [100, 50]))
-		
+
 	def addCartaMesa(self, pos):
 		ocupado = copy.deepcopy(self.mao[self.cartaSelecionada]['carta'])
 		chaves = [key for key, val in self.mesa.items() if val['ocupado']]
