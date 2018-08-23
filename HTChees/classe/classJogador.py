@@ -72,7 +72,7 @@ class classJogador:
 
 	def socket(self, turno = False):
 		con = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-		con.connect(('10.229.7.116', 7003))
+		con.connect(('10.229.7.116', 7005))
 		if turno:
 			arr = json.dumps({'id': '3'}, ensure_ascii=False).encode('utf8')
 			con.send(arr)
@@ -330,8 +330,6 @@ class classJogador:
 		mesa = self.mesa
 		lenInimigo = len([key for key, val in inimigo.items() if val])
 		lenMesa = len([key for key, val in mesa.items() if val['ocupado']])
-		print(lenInimigo, inimigo, "\n")
-		print(lenMesa, mesa, "\n")
 		for i in range(-3, 3):
 			if (lenInimigo - lenMesa) % 2 == 0:
 				if inimigo[str(i)] != False:
@@ -340,18 +338,27 @@ class classJogador:
 						if mesa[i]['ocupado']['life'] <= 0:
 							mesa[i]['ocupado'] = False
 					else:
-						pass #bate cara
+						self.vida -= inimigo[str(i)]['atack']
 			else:
+				ajuste = +1
+				atacou = False
+				if lenMesa > lenInimigo:
+					ajuste = -1
 				if inimigo[str(i)] != False:
 					if mesa[i]['ocupado'] != False:
 						mesa[i]['ocupado']['life'] = mesa[i]['ocupado']['life'] - inimigo[str(i)]['atack']
-						mesa[i-1]['ocupado']['life'] = mesa[i-1]['ocupado']['life'] - inimigo[str(i)]['atack']
 						if mesa[i]['ocupado']['life'] <= 0:
-							mesa[i]['ocupado'] = False
-						if mesa[i-1]['ocupado']['life'] <= 0:
-							mesa[i-1]['ocupado'] = False
-					else:
-						pass #bate cara
+							mesa[i]['ocupado'] = Fals
+						atacou = True
+
+					if mesa[i+ajuste]['ocupado'] != False:
+						mesa[i+ajuste]['ocupado']['life'] = mesa[i+ajuste]['ocupado']['life'] - inimigo[str(i)]['atack']
+						if mesa[i+ajuste]['ocupado']['life'] <= 0:
+							mesa[i+ajuste]['ocupado'] = False
+						atacou = True
+
+					if not atacou:
+						self.vida -= inimigo[str(i)]['atack']
 		return True
 
 	def addMana(self):

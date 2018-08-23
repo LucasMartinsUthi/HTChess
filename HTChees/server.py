@@ -3,7 +3,7 @@ import sys
 import json
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_address = ('10.229.7.116', 7003)
+server_address = ('10.229.7.116', 7005)
 print ('starting up on %s port %s' % server_address)
 sock.bind(server_address)
 sock.listen(2)
