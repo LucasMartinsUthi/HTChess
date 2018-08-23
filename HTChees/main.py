@@ -16,26 +16,34 @@ click = True
 dragDrop = True
 addCartaMesa = False
 preview = False
+inicioTurno = True
+
 jogador.socket()
 jogador.addMao()
 jogador.addMao()
 jogador.addMao()
 jogador.drawMao()
+
 while True:
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			sys.exit()
 	jogador.initDraw()
-	print(jogador.inimigo['turno'])
+	# print(jogador.inimigo['turno'])
 	if int(jogador.inimigo['turno']) != int(jogador.id):
-		print('Não é seu turno')
+		pass
+		# print('Não é seu turno')
 	else:
 		# Click Button
+		if inicioTurno:
+			jogador.defesaInimigo()
+			jogador.addMao()
+			jogador.addMana()
+			inicioTurno = False
 		if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and click == True and jogador.button.collidepoint(pg.mouse.get_pos()):
 			click = False
-			jogador.addMao()
-			jogador.drawMao()
 			jogador.socket(True)
+			inicioTurno = True
 		elif event.type != pygame.MOUSEBUTTONDOWN or event.button != 1 or click != False:
 			click = True
 
@@ -91,8 +99,6 @@ while True:
 
 
 #(Terminar o resto do jogo)
-# passsar turno / atacar
-#remover cartas do tabuleiro
 #Vida e Mana
 #Fadiga
 #Fim de Jogo
