@@ -10,6 +10,7 @@ image = pg.image
 transform = pg.transform
 
 jogador = classJogador()
+print('teste print')
 jogador.id = input("Qual Jogador vc é: ")
 
 click = True
@@ -82,6 +83,7 @@ while True:
 	if not preview:
 		jogador.drawMesa()
 	jogador.drawDrag()
+	jogador.drawInimigo()
 	pg.display.update()
 	pg.time.Clock().tick(60)
 

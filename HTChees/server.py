@@ -4,7 +4,7 @@ import json
 
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_address = ('10.228.254.181', 7016)
+server_address = ('localhost', 7016)
 print ('starting up on %s port %s' % server_address)
 sock.bind(server_address)
 sock.listen(2)
