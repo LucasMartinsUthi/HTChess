@@ -72,7 +72,7 @@ class classJogador:
 
 	def socket(self, turno = False):
 		con = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-		con.connect(('10.229.7.116', 7005))
+		con.connect(('25.12169.183', 3000))
 		if turno:
 			arr = json.dumps({'id': '3'}, ensure_ascii=False).encode('utf8')
 			con.send(arr)
@@ -328,7 +328,8 @@ class classJogador:
 			return True
 		inimigo = self.inimigo['mesa']
 		mesa = self.mesa
-		lenInimigo = len([key for key, val in inimigo.items() if val])
+		listaInimigo = [key for key, val in inimigo.items() if val]
+		lenInimigo = len(listaInimigo)
 		lenMesa = len([key for key, val in mesa.items() if val['ocupado']])
 		for i in range(-3, 3):
 			if (lenInimigo - lenMesa) % 2 == 0:
@@ -340,15 +341,17 @@ class classJogador:
 					else:
 						self.vida -= inimigo[str(i)]['atack']
 			else:
-				ajuste = +1
+				ajuste = -1
 				atacou = False
-				if lenMesa > lenInimigo:
-					ajuste = -1
+				menor = int(min(listaInimigo))
+				maior = int(max(listaInimigo))
+				if abs(menor) == abs(maior): #menor == maior
+					ajuste = +1
 				if inimigo[str(i)] != False:
 					if mesa[i]['ocupado'] != False:
 						mesa[i]['ocupado']['life'] = mesa[i]['ocupado']['life'] - inimigo[str(i)]['atack']
 						if mesa[i]['ocupado']['life'] <= 0:
-							mesa[i]['ocupado'] = Fals
+							mesa[i]['ocupado'] = False
 						atacou = True
 
 					if mesa[i+ajuste]['ocupado'] != False:
