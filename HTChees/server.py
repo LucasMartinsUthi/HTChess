@@ -3,7 +3,7 @@ import sys
 import json
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_address = ('25.12.169.183', 3000)
+server_address = ('192.168.0.101', 4000)
 print ('starting up on %s port %s' % server_address)
 sock.bind(server_address)
 sock.listen(2)
@@ -17,7 +17,6 @@ while True:
 	if data['id'] == '1':
 		p1 = data
 		p2.update({'turno': turno})
-		print(p2)
 		arr = json.dumps(p2, ensure_ascii=False).encode('utf8')
 		connection.send(arr)
 	elif data['id'] == '2':

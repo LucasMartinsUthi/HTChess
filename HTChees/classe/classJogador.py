@@ -44,14 +44,13 @@ class classJogador:
 		self.mao = []
 		self.cartaSelecionada = None
 		self.button = None
-		self.debug = 10
 		self.bkpMesa  = copy.deepcopy(self.mesa)
 		self.inimigo = None
-		self.con = True
-		self.initDraw()
+		self.drag = False
+		self.escolha = []
 		self.geraDeck()
 
-	def initDraw(self):
+	def initDraw(self, textButton):
 		self.canvas.fill([0, 0, 0])
 
 		mesa = pygame.draw.rect(self.canvas, [130, 89, 9], ([0,540], [1280, 180]))
@@ -67,12 +66,12 @@ class classJogador:
 			self.canvas.blit(textsurface, [self.width/2 - 120, 10])
 
 		self.button = pygame.draw.rect(self.canvas, [130, 130, 10], ([self.width - 100, self.height/2 -25], [100, 50]))
-		textsurface = self.font.render('Turno', False, (0, 0, 0))
+		textsurface = self.font.render(textButton, False, (0, 0, 0))
 		self.canvas.blit(textsurface, self.button)
 
 	def socket(self, turno = False):
 		con = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-		con.connect(('25.12169.183', 3000))
+		con.connect(('192.168.0.101', 4000))
 		if turno:
 			arr = json.dumps({'id': '3'}, ensure_ascii=False).encode('utf8')
 			con.send(arr)
@@ -82,7 +81,7 @@ class classJogador:
 		chavesMesa = [key for key, val in self.mesa.items()]
 		for chave in chavesMesa:
 			mesa.update({chave : self.mesa[chave]['ocupado']})
-		arr = json.dumps({'id': self.id, 'lenMao' : len(self.mao), 'mesa' : mesa, 'lenDeck': len(self.deck), 'vida': self.vida, 'mana': self.mana, 'manaTotal': self.manaTotal}, ensure_ascii=False).encode('utf8')
+		arr = json.dumps({'id': self.id, 'lenMao' : len(self.mao), 'mesa' : mesa, 'lenDeck': len(self.deck), 'vida': self.vida, 'mana': self.mana, 'manaTotal': self.manaTotal, 'drag': self.drag, 'cartaSelecionada': self.cartaSelecionada}, ensure_ascii=False).encode('utf8')
 		con.send(arr)
 		resposta = con.recv(1024).decode()
 		resposta = json.loads(resposta)
@@ -103,22 +102,43 @@ class classJogador:
 			print('Mão Cheia')
 		else:
 			self.mao.append({'carta': self.deck[0]})
-			self.deck.pop(0)
+			if len(self.deck) > 0:
+				self.deck.pop(0)
+			else:
+				print('Fadiga')
 		return self.mao
 
-	def addCartaMesa(self, pos):
-		if self.mana - int(self.mao[self.cartaSelecionada]['carta']['mana']) < 0:
-			print("Mana Insuficiente")
+	def addCartaMesa(self, pos, cartaRearranjo = False):
+		# Testa se existe uma carta selecionada
+		try:
+			self.cartaSelecionada
+		except:
 			return True
-		else:
-			 self.mana -= int(self.mao[self.cartaSelecionada]['carta']['mana'])
 
-		ocupado = copy.deepcopy(self.mao[self.cartaSelecionada]['carta'])
+		if not cartaRearranjo:
+			# Verifica mana
+			if 	self.mana - int(self.mao[self.cartaSelecionada]['carta']['mana']) < 0:
+				print("Mana Insuficiente")
+				return True
+			else:
+				 self.mana -= int(self.mao[self.cartaSelecionada]['carta']['mana'])
+
+			# É uma moeda?
+			if self.mao[self.cartaSelecionada]['carta']['name'] == 'coin':
+				self.mana += 1
+				self.mao.pop(self.cartaSelecionada)
+				return True
+			ocupado = copy.deepcopy(self.mao[self.cartaSelecionada]['carta'])
+
+		else:
+			ocupado = cartaRearranjo
+
 		chaves = [key for key, val in self.mesa.items() if val['ocupado']]
 		if not chaves:
 			self.mesa[0]['ocupado'] = ocupado
 			self.mesa[0]['rect'] = pygame.draw.rect(self.canvas, [0, 0, 0], (self.mesa[0]['pos'] ,[100,150]))
-			self.mao.pop(self.cartaSelecionada)
+			if not cartaRearranjo:
+				self.mao.pop(self.cartaSelecionada)
 			return True
 
 		menor = min(chaves)
@@ -164,8 +184,9 @@ class classJogador:
 
 			self.mesa[pos]['ocupado'] = ocupado
 			self.mesa[pos]['rect'] = pygame.draw.rect(self.canvas, [0, 0, 0], (self.mesa[pos]['pos'] ,[100,150]))
-		
-		self.mao.pop(self.cartaSelecionada)
+
+		if not cartaRearranjo:
+			self.mao.pop(self.cartaSelecionada)
 		return True
 
 	def previewCartaMesa(self, pos):
@@ -292,7 +313,8 @@ class classJogador:
 			mao = self.inimigo['lenMao']
 			pos = [20, -24]
 			for i in range(mao):
-				pygame.draw.rect(self.canvas, (158, 100, 0), (pos,[100,180]))
+				if i != self.inimigo['cartaSelecionada']:
+					pygame.draw.rect(self.canvas, (158, 100, 0), (pos,[100,180]))
 				pos[0] += 120
 
 			mesa = {}
@@ -316,6 +338,9 @@ class classJogador:
 
 				else:
 					pygame.draw.rect(self.canvas, [0, 0, 0], (pos ,[100,150]), 1)
+			if self.inimigo['drag'] != False:
+				pygame.draw.rect(self.canvas, (158, 100, 0), (self.inimigo['drag'], [100,180]))
+
 		else:
 			print('Nenhum Inimigo Encontrado')
 
@@ -326,8 +351,10 @@ class classJogador:
 			self.inimigo['mesa']
 		except:
 			return True
+
 		inimigo = self.inimigo['mesa']
 		mesa = self.mesa
+		removeCartaMesa = False
 		listaInimigo = [key for key, val in inimigo.items() if val]
 		lenInimigo = len(listaInimigo)
 		lenMesa = len([key for key, val in mesa.items() if val['ocupado']])
@@ -337,33 +364,113 @@ class classJogador:
 					if mesa[i]['ocupado'] != False:
 						mesa[i]['ocupado']['life'] = mesa[i]['ocupado']['life'] - inimigo[str(i)]['atack']
 						if mesa[i]['ocupado']['life'] <= 0:
+							removeCartaMesa = True
 							mesa[i]['ocupado'] = False
+							mesa[i]['rect'] = None
 					else:
 						self.vida -= inimigo[str(i)]['atack']
 			else:
 				ajuste = -1
 				atacou = False
-				menor = int(min(listaInimigo))
-				maior = int(max(listaInimigo))
-				if abs(menor) == abs(maior): #menor == maior
-					ajuste = +1
+
+				try:
+					menor = int(min(listaInimigo))
+					maior = int(max(listaInimigo))
+					if abs(menor) == abs(maior): #menor == maior
+						ajuste = +1
+				except:
+					menor = 0
+					maior = 0
+					ajuste = 0
+
 				if inimigo[str(i)] != False:
 					if mesa[i]['ocupado'] != False:
 						mesa[i]['ocupado']['life'] = mesa[i]['ocupado']['life'] - inimigo[str(i)]['atack']
 						if mesa[i]['ocupado']['life'] <= 0:
+							removeCartaMesa = True
 							mesa[i]['ocupado'] = False
+							mesa[i]['rect'] = None
 						atacou = True
 
 					if mesa[i+ajuste]['ocupado'] != False:
 						mesa[i+ajuste]['ocupado']['life'] = mesa[i+ajuste]['ocupado']['life'] - inimigo[str(i)]['atack']
 						if mesa[i+ajuste]['ocupado']['life'] <= 0:
-							mesa[i+ajuste]['ocupado'] = False
+							removeCartaMesa = True
+							mesa[i]['ocupado'] = False
+							mesa[i]['rect'] = None
 						atacou = True
 
 					if not atacou:
 						self.vida -= inimigo[str(i)]['atack']
+		if removeCartaMesa:
+			self.rearranjarMesa()
+		return True
+
+	def rearranjarMesa(self):
+		bkpMesa = copy.deepcopy(self.mesa) #Rearranjar a mesa
+		# reinicia Mesa
+		self.mesa = {-3: {'ocupado': False, 'pos': [70, self.height/2 + 30], 'rect': None, 'colide': pygame.draw.rect(self.canvas, [0, 0, 0], ([70, self.height/2 + 30],[140,150]))},
+        			-2: {'ocupado': False, 'pos': [210, self.height/2 + 30],'rect': None, 'colide': pygame.draw.rect(self.canvas, [0, 0, 0], ([210, self.height/2 + 30],[140,150]))},
+        			-1: {'ocupado': False, 'pos': [350, self.height/2 + 30],'rect': None, 'colide': pygame.draw.rect(self.canvas, [0, 0, 0], ([350, self.height/2 + 30],[140,150]))},
+        			0: {'ocupado': False, 'pos': [490, self.height/2 + 30],'rect': None, 'colide': pygame.draw.rect(self.canvas, [0, 0, 0], ([490, self.height/2 + 30],[140,150]))},
+        			1: {'ocupado': False, 'pos': [630, self.height/2 + 30],'rect': None, 'colide': pygame.draw.rect(self.canvas, [0, 0, 0], ([630, self.height/2 + 30],[140,150]))},
+        			2: {'ocupado': False, 'pos': [770, self.height/2 + 30],'rect': None, 'colide': pygame.draw.rect(self.canvas, [0, 0, 0], ([770, self.height/2 + 30],[140,150]))},
+        			3: {'ocupado': False, 'pos': [910, self.height/2 + 30],'rect': None, 'colide': pygame.draw.rect(self.canvas, [0, 0, 0], ([910, self.height/2 + 30],[140,150]))}}       
+        # chaves das cartas nas mesa
+		cartasMesa = [key for key, val in bkpMesa.items() if val['ocupado']]
+		cartasMesa.sort()
+    	# Adiciona as carta em ordem da esquerda para direita
+		for carta in cartasMesa:
+			self.addCartaMesa(3, bkpMesa[carta]['ocupado'])
+
+		# self.debug()
 		return True
 
 	def addMana(self):
 		self.manaTotal += 1
 		self.mana = int(self.manaTotal)
+
+	# Funçoes de Escolha de Carta
+	def drawEscolha(self):
+		pos = [self.width/2 - 170, self.height/2 - 90]
+		if len(self.mao) == 4:
+			pos = [self.width/2 - 230, self.height/2 - 90]
+
+		i = 0
+		for carta in self.mao:
+			if i in self.escolha:				
+				self.mao[i].update({'rect': pygame.draw.rect(self.canvas, carta['carta']['cor'], (pos,[100,180]))})
+				pygame.draw.rect(self.canvas, [255, 0 ,0], ([pos[0] - 5, pos[1] - 5],[110,190]), 5)
+				atackVida = self.font.render(str(self.mao[i]['carta']['atack']) + "/" + str(self.mao[i]['carta']['life']) + "  -- " + str(self.mao[i]['carta']['mana']), False, (0, 0, 0))
+				self.canvas.blit(atackVida, self.mao[i]['rect'])
+			else:
+				self.mao[i].update({'rect': pygame.draw.rect(self.canvas, carta['carta']['cor'], (pos,[100,180]))})
+				atackVida = self.font.render(str(self.mao[i]['carta']['atack']) + "/" + str(self.mao[i]['carta']['life']) + "  -- " + str(self.mao[i]['carta']['mana']), False, (0, 0, 0))
+				self.canvas.blit(atackVida, self.mao[i]['rect'])
+			pos[0] += 120
+			i += 1
+
+		return True
+
+	def trocaEscolha(self):
+		lenEscolha = len(self.escolha)
+		self.escolha.sort(reverse=True)
+
+		for i in range(0, lenEscolha):
+			randIndex = randint(0, len(self.deck) - 1)
+			self.deck.insert(randIndex, self.mao[self.escolha[i]]['carta'])
+			self.mao.pop(self.escolha[i])
+			self.addMao()
+
+		self.escolha = []
+		self.drawMao()
+		return True
+
+	def addMaoMana(self):
+		self.mao.append({'carta': {'name': "coin",  'mana': 0, 'atack': 0, 'life': 0, 'cor': [66, 244, 244]}})
+		return True
+
+	def debug(self):
+		print(self.mao)
+		print("##################")
+		print(self.mesa)
