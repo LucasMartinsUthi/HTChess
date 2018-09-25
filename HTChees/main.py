@@ -14,6 +14,7 @@ jogador.id = input("Qual Jogador vc é: ")
 
 click = False
 dragDrop = True
+dragCavalo = True
 addCartaMesa = False
 preview = False
 inicioTurno = True
@@ -72,6 +73,8 @@ while True:
 
 	if int(jogador.inimigo['turno']) != int(jogador.id):
 		jogador.initDraw("T Inimigo")
+	elif jogador.inimigo == None:
+		jogador.initDraw("...")
 	else:
 		jogador.initDraw("Turno")
 
@@ -87,6 +90,7 @@ while True:
 		if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and click and escolhendoCarta != False and jogador.button.collidepoint(pg.mouse.get_pos()):
 			print('passou Turno')
 			click = False
+			jogador.atackBispo()
 			jogador.socket(True)
 			inicioTurno = True
 
@@ -104,6 +108,17 @@ while True:
 				addCartaMesa = True
 			i += 1
 
+		# Drag Cavalo
+		chavesMesa = [key for key, val in jogador.mesa.items() if val['ocupado']]
+		for carta in chavesMesa:
+			print("Carta:", carta, (event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and dragCavalo and jogador.mesa[carta]['ocupado']['name'] == 'knight' and jogador.mesa[carta]['rect'].collidepoint(pg.mouse.get_pos()) and jogador.mesa[carta]['ocupado'] != False))
+			if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and dragCavalo and jogador.mesa[carta]['ocupado']['name'] == 'knight' and jogador.mesa[carta]['rect'].collidepoint(pg.mouse.get_pos()) and jogador.mesa[carta]['ocupado'] != False:
+				dragCavalo = False
+				jogador.dragCavalo = [pygame.mouse.get_pos()[0] - 50, 720 - pygame.mouse.get_pos()[1] - 90]
+				jogador.cavaloSelecionado = carta
+
+		print("Ao final do loop - Selecionado", jogador.cavaloSelecionado, "Drag:", dragCavalo)
+
 		#Preview
 		h = -3
 		chavesMesa = list(jogador.mesa.keys())
@@ -116,18 +131,31 @@ while True:
 
 		#Parado
 		if (event.type != pygame.MOUSEBUTTONDOWN or event.button != 1 or dragDrop != False) and event.type != pygame.MOUSEMOTION:
-			j = -3 
 			chaves = list(jogador.mesa.keys())
 			chaves.sort()	
 			for casa in chaves:
 				if jogador.mesa[casa]['colide'].collidepoint(pg.mouse.get_pos()):
 					if addCartaMesa:
-						jogador.addCartaMesa(j)	
+						jogador.addCartaMesa(casa)	
 						addCartaMesa = False
-				j += 1
+
 			jogador.cartaSelecionada = None
 			jogador.drag = False
 			dragDrop = True
+
+		#Cavalo
+		if (event.type != pygame.MOUSEBUTTONDOWN or event.button != 1 or dragCavalo != False) and event.type != pygame.MOUSEMOTION:
+			# chaves = list(jogador.mesa.keys())
+			# chaves.sort()	
+			# for casa in chaves:
+			# 	if jogador.mesa[casa]['colide'].collidepoint(pg.mouse.get_pos()):
+			# 		if addCartaMesa:
+			# 			jogador.addCartaMesa(casa)	
+			# 			addCartaMesa = False
+						
+			jogador.cavaloSelecionado = None
+			jogador.dragCavalo = False
+			dragCavalo = True
 
 		chaves = list(jogador.mesa.keys())
 		for casa in chaves:
@@ -139,18 +167,23 @@ while True:
 
 		if jogador.drag != False:
 			jogador.drag = [pygame.mouse.get_pos()[0] - 50, 720 - pygame.mouse.get_pos()[1] - 90]
+
+		if jogador.dragCavalo != False:
+			jogador.dragCavalo = [pygame.mouse.get_pos()[0], 720 - pygame.mouse.get_pos()[1]]
 	#Draws 
 	jogador.drawMao()
 	if not preview:
 		jogador.drawMesa()
 	jogador.drawInimigo()
 	jogador.drawDrag()
+	if not dragCavalo:
+		jogador.previewCavalo()
 	pg.display.update()
 	pg.time.Clock().tick(60)
 
 
 #(Terminar o resto do jogo)
-	#Rearranjar a mesa ao uma carta ser eliminada
-	#Fadiga
 	#Fim de Jogo
-	#Cavalo e Bispo
+	#Cavalo
+
+# Animacao classe com os loop

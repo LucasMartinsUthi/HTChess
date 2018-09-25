@@ -16,21 +16,21 @@ class classJogador:
 		pygame.font.init()
 		self.font = pygame.font.SysFont('Helvetica', 20)
 		self.id = None
-		self.deck = [{'name': "queen",  'mana': 7, 'atack': 4, 'life': 6, 'cor': [0, 0, 255]},
-                    {'name': "knight", 'mana': 4, 'atack': 4, 'life': 3, 'cor': [0, 255, 0]},
-                    {'name': "knight", 'mana': 4, 'atack': 4, 'life': 3, 'cor': [0, 255, 0]},
-                    {'name': "bishop", 'mana': 3, 'atack': 0, 'life': 6, 'cor': [255, 0, 0]},
-                    {'name': "bishop", 'mana': 3, 'atack': 0, 'life': 6, 'cor': [255, 0, 0]},
-                    {'name': "rook", 'mana': 3, 'atack': 2, 'life': 6, 'cor': [255, 255, 0]},
-                    {'name': "rook", 'mana': 3, 'atack': 2, 'life': 6, 'cor': [255, 255, 0]},
-                    {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'cor': [255, 0, 255]},
-                    {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'cor': [255, 0, 255]},
-                    {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'cor': [255, 0, 255]},
-                    {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'cor': [255, 0, 255]},
-                    {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'cor': [255, 0, 255]},
-                    {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'cor': [255, 0, 255]},
-                    {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'cor': [255, 0, 255]},
-                    {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'cor': [255, 0, 255]}]
+		self.deck = [{'name': "queen",  'mana': 7, 'atack': 4, 'life': 6, 'lifeTotal': 6, 'cor': [0, 0, 255]},
+                    {'name': "knight", 'mana': 4, 'atack': 4, 'life': 3, 'lifeTotal': 3, 'cor': [0, 255, 0]},
+                    {'name': "knight", 'mana': 4, 'atack': 4, 'life': 3, 'lifeTotal': 3, 'cor': [0, 255, 0]},
+                    {'name': "bishop", 'mana': 3, 'atack': 0, 'life': 6, 'lifeTotal': 6, 'cor': [255, 0, 0]},
+                    {'name': "bishop", 'mana': 3, 'atack': 0, 'life': 6, 'lifeTotal': 6, 'cor': [255, 0, 0]},
+                    {'name': "rook", 'mana': 3, 'atack': 2, 'life': 6, 'lifeTotal': 6, 'cor': [255, 255, 0]},
+                    {'name': "rook", 'mana': 3, 'atack': 2, 'life': 6, 'lifeTotal': 6, 'cor': [255, 255, 0]},
+                    {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'lifeTotal': 6, 'cor': [255, 0, 255]},
+                    {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'lifeTotal': 6, 'cor': [255, 0, 255]},
+                    {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'lifeTotal': 6, 'cor': [255, 0, 255]},
+                    {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'lifeTotal': 6, 'cor': [255, 0, 255]},
+                    {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'lifeTotal': 6, 'cor': [255, 0, 255]},
+                    {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'lifeTotal': 6, 'cor': [255, 0, 255]},
+                    {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'lifeTotal': 6, 'cor': [255, 0, 255]},
+                    {'name': "pawn", 'mana': 1, 'atack': 1, 'life': 6, 'lifeTotal': 6, 'cor': [255, 0, 255]}]
 		self.mesa = {-3: {'ocupado': False, 'pos': [70, self.height/2 + 30], 'rect': None, 'colide': pygame.draw.rect(self.canvas, [0, 0, 0], ([70, self.height/2 + 30],[140,150]))},
                    -2: {'ocupado': False, 'pos': [210, self.height/2 + 30],'rect': None, 'colide': pygame.draw.rect(self.canvas, [0, 0, 0], ([210, self.height/2 + 30],[140,150]))},
                    -1: {'ocupado': False, 'pos': [350, self.height/2 + 30],'rect': None, 'colide': pygame.draw.rect(self.canvas, [0, 0, 0], ([350, self.height/2 + 30],[140,150]))},
@@ -41,12 +41,15 @@ class classJogador:
 		self.vida = 20
 		self.manaTotal = 0
 		self.mana = 0
+		self.fadiga = 1
 		self.mao = []
 		self.cartaSelecionada = None
 		self.button = None
 		self.bkpMesa  = copy.deepcopy(self.mesa)
 		self.inimigo = None
 		self.drag = False
+		self.dragCavalo = False
+		self.cavaloSelecionado = False
 		self.escolha = []
 		self.geraDeck()
 
@@ -56,11 +59,15 @@ class classJogador:
 		mesa = pygame.draw.rect(self.canvas, [130, 89, 9], ([0,540], [1280, 180]))
 		textsurface = self.font.render(str(self.vida) + " - " + str(self.mana) + "/" + str(self.manaTotal), False, (0, 0, 0))
 		self.canvas.blit(textsurface, [1200, self.height-170])
+		textsurface = self.font.render(str(len(self.deck)), False, (0, 0, 0))
+		self.canvas.blit(textsurface, [1240, self.height-150])
 
 		inimigo = pygame.draw.rect(self.canvas, [130, 89, 9], ([0,0], [1280, 180]))
 		if self.inimigo != None and list(self.inimigo.keys()) != ['turno'] :
-			textsurface = self.font.render(str(self.inimigo['vida']) + " - " + str(self.inimigo['manaTotal']) + "/" + str(self.inimigo['manaTotal']), False, (0, 0, 0))
+			textsurface = self.font.render(str(self.inimigo['vida']) + " - " + str(self.inimigo['mana']) + "/" + str(self.inimigo['manaTotal']), False, (0, 0, 0))
 			self.canvas.blit(textsurface, [1200, 10])
+			textsurface = self.font.render(str(self.inimigo['lenDeck']), False, (0, 0, 0))
+			self.canvas.blit(textsurface, [1240, 30])
 		else:
 			textsurface = self.font.render("Procurando por Inimigos", False, (0, 0, 0))
 			self.canvas.blit(textsurface, [self.width/2 - 120, 10])
@@ -71,7 +78,7 @@ class classJogador:
 
 	def socket(self, turno = False):
 		con = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-		con.connect(('192.168.0.101', 4000))
+		con.connect(('localhost', 4000))
 		if turno:
 			arr = json.dumps({'id': '3'}, ensure_ascii=False).encode('utf8')
 			con.send(arr)
@@ -101,18 +108,18 @@ class classJogador:
 		if len(self.mao) == 10:
 			print('Mão Cheia')
 		else:
-			self.mao.append({'carta': self.deck[0]})
 			if len(self.deck) > 0:
+				self.mao.append({'carta': self.deck[0]})
 				self.deck.pop(0)
 			else:
-				print('Fadiga')
+				self.vida = self.vida - self.fadiga
+				self.fadiga += 1
+				
 		return self.mao
 
 	def addCartaMesa(self, pos, cartaRearranjo = False):
 		# Testa se existe uma carta selecionada
-		try:
-			self.cartaSelecionada
-		except:
+		if self.cartaSelecionada == None:
 			return True
 
 		if not cartaRearranjo:
@@ -355,55 +362,112 @@ class classJogador:
 		inimigo = self.inimigo['mesa']
 		mesa = self.mesa
 		removeCartaMesa = False
+		removidas = []
 		listaInimigo = [key for key, val in inimigo.items() if val]
 		lenInimigo = len(listaInimigo)
 		lenMesa = len([key for key, val in mesa.items() if val['ocupado']])
+
+		# print("Inimigo: len =", lenInimigo, "Lista:", listaInimigo)
+		# print("Defendendo: len =", lenMesa)
+
 		for i in range(-3, 3):
 			if (lenInimigo - lenMesa) % 2 == 0:
+				# print('Defesa em linha')
 				if inimigo[str(i)] != False:
+					# print('inimigo existe')
 					if mesa[i]['ocupado'] != False:
+						# print('Defesa existe')
 						mesa[i]['ocupado']['life'] = mesa[i]['ocupado']['life'] - inimigo[str(i)]['atack']
+						# print("Vida apos atak:", mesa[i]['ocupado']['life'])
 						if mesa[i]['ocupado']['life'] <= 0:
+							# print('Remove Carta', mesa[i]['ocupado'])
 							removeCartaMesa = True
 							mesa[i]['ocupado'] = False
 							mesa[i]['rect'] = None
 					else:
+						# print('Não teve atack, atacar cara')
 						self.vida -= inimigo[str(i)]['atack']
 			else:
-				ajuste = -1
 				atacou = False
+				menor = 0
+				maior = 0
+				ajuste = 0
 
-				try:
+				# print('Atack crusado lenInimigo:', lenInimigo)
+				if lenInimigo > 0:
 					menor = int(min(listaInimigo))
 					maior = int(max(listaInimigo))
 					if abs(menor) == abs(maior): #menor == maior
 						ajuste = +1
-				except:
-					menor = 0
-					maior = 0
-					ajuste = 0
+					else:
+						ajuste = -1
+
+				# print('Maior:', maior, 'Menor:', menor, 'Ajuste:', ajuste)
 
 				if inimigo[str(i)] != False:
 					if mesa[i]['ocupado'] != False:
 						mesa[i]['ocupado']['life'] = mesa[i]['ocupado']['life'] - inimigo[str(i)]['atack']
+						# print('inimigo:', inimigo[str(i)], 'atacou', mesa[i]['ocupado'])
 						if mesa[i]['ocupado']['life'] <= 0:
 							removeCartaMesa = True
-							mesa[i]['ocupado'] = False
-							mesa[i]['rect'] = None
+							if i not in removidas:
+								# print('Remover carta do index:', i+ajuste)
+								removidas.append(i)
 						atacou = True
 
-					if mesa[i+ajuste]['ocupado'] != False:
-						mesa[i+ajuste]['ocupado']['life'] = mesa[i+ajuste]['ocupado']['life'] - inimigo[str(i)]['atack']
-						if mesa[i+ajuste]['ocupado']['life'] <= 0:
-							removeCartaMesa = True
-							mesa[i]['ocupado'] = False
-							mesa[i]['rect'] = None
-						atacou = True
+					if -3 <= i+ajuste <= 3:
+						if mesa[i+ajuste]['ocupado'] != False:
+							mesa[i+ajuste]['ocupado']['life'] = mesa[i+ajuste]['ocupado']['life'] - inimigo[str(i)]['atack']
+							# print('inimigo:', inimigo[str(i)], 'atacou', mesa[i+ajuste]['ocupado'])
+							if mesa[i+ajuste]['ocupado']['life'] <= 0:
+								removeCartaMesa = True
+								if i+ajuste not in removidas:
+									# print('Remover carta do index:', i+ajuste)
+									removidas.append(i+ajuste)
+							atacou = True
 
 					if not atacou:
+						# print('Cara')
 						self.vida -= inimigo[str(i)]['atack']
+
+		# print('Carta para remover:', removidas, 'rerranjo:', removeCartaMesa)
+		for i in removidas:
+			mesa[i]['ocupado'] = False
+			mesa[i]['rect'] = None
 		if removeCartaMesa:
 			self.rearranjarMesa()
+		return True
+
+	def atackBispo(self):
+		for i in range(-3, 3):
+			try: 
+				 self.mesa[i]['ocupado']['name']
+			except:
+				continue
+
+			if self.mesa[i]['ocupado']['name'] == "bishop":
+				if i+1 <= 3 and self.mesa[i+1]['ocupado'] != False:
+					self.mesa[i+1]['ocupado']['life'] += 2
+					if self.mesa[i+1]['ocupado']['life'] > self.mesa[i+1]['ocupado']['lifeTotal']:
+						self.mesa[i+1]['ocupado']['life'] = self.mesa[i+1]['ocupado']['lifeTotal']
+				if i-1 >= -3 and self.mesa[i-1]['ocupado'] != False:
+					self.mesa[i-1]['ocupado']['life'] += 2
+					if self.mesa[i-1]['ocupado']['life'] > self.mesa[i-1]['ocupado']['lifeTotal']:
+						self.mesa[i-1]['ocupado']['life'] = self.mesa[i-1]['ocupado']['lifeTotal']
+		return True
+
+
+	def atackCavalo(self):
+		pass
+
+	def previewCavalo(self):
+		pos = [pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]]
+
+		chavesMesa = [key for key, val in self.mesa.items() if val['ocupado']]
+		for cartaIndex in chavesMesa:
+			if cartaIndex == self.cavaloSelecionado:
+				pygame.draw.rect(self.canvas, [255, 0 ,0], ([self.mesa[cartaIndex]['pos'][0] - 5, self.mesa[cartaIndex]['pos'][1] - 5],[110,110]), 5)
+				
 		return True
 
 	def rearranjarMesa(self):
